@@ -1,0 +1,97 @@
+.dep-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+
+.dep-stats {
+  display: flex;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.stat {
+  font-size: 12px;
+  color: #71717a;
+}
+
+.stat.resolved {
+  color: #10b981;
+}
+
+.stat.unknown {
+  color: #71717a;
+}
+
+.dep-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dep-item {
+  padding: 8px 12px;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.dep-item:hover {
+  border-color: #10b981;
+}
+
+.dep-name {
+  font-size: 13px;
+  color: #fafafa;
+  font-weight: 500;
+}
+
+.dep-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.status-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.pending {
+  background: #27272a;
+  color: #71717a;
+}
+
+.status-badge.fetching {
+  background: #1c1a0a;
+  color: #ca8a04;
+}
+
+.status-badge.resolved {
+  background: #052e16;
+  color: #10b981;
+}
+
+.status-badge.failed {
+  background: #2a0909;
+  color: #ef4444;
+}
+
+.dep-location {
+  font-size: 11px;
+  color: #71717a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}

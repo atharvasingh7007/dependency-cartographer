@@ -1,0 +1,47 @@
+.app {
+  display: flex;
+  height: 100vh;
+  background: #09090b;
+  color: #fafafa;
+}
+
+.sidebar {
+  width: 360px;
+  min-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  border-right: 1px solid #27272a;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fafafa;
+  margin: 0;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.app-subtitle {
+  font-size: 12px;
+  color: #71717a;
+  margin: 0;
+}
+
+.main-content {
+  flex: 1;
+  position: relative;
+  padding: 24px;
+  min-width: 0;
+}

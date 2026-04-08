@@ -1,0 +1,35 @@
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #2a0909;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+}
+
+.error-icon {
+  color: #ef4444;
+  font-size: 16px;
+}
+
+.error-message {
+  flex: 1;
+  font-size: 13px;
+  color: #fafafa;
+}
+
+.dismiss-btn {
+  background: none;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.dismiss-btn:hover {
+  color: #fafafa;
+}
