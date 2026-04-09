@@ -30,3 +30,7 @@ npm-debug.log*
 # Cache
 .cache/
 .eslintcache
+
+# Private docs (not for public repo)
+manual.md
+improvement.md
