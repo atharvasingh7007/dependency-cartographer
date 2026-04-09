@@ -1,11 +1,12 @@
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 import { useState } from 'react';
-import { GEO_URL } from '../data/geography';
+import { GEO_URL, PROJECTION } from '../data/geography';
 import type { Marker as MarkerType } from '../types';
 import './MapView.css';
 
 interface MapViewProps {
   markers: MarkerType[];
+  selectedDep?: string | null;
 }
 
 interface TooltipState {
@@ -13,14 +14,20 @@ interface TooltipState {
   x: number;
   y: number;
   content: string;
+  maintainer: string;
+  packages: string[];
+  location: string;
 }
 
-export function MapView({ markers }: MapViewProps) {
+export function MapView({ markers, selectedDep }: MapViewProps) {
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
     x: 0,
     y: 0,
     content: '',
+    maintainer: '',
+    packages: [],
+    location: '',
   });
 
   function handleMarkerMouseEnter(
@@ -35,7 +42,10 @@ export function MapView({ markers }: MapViewProps) {
       visible: true,
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
-      content: `${marker.maintainer}\n${marker.packages.slice(0, 5).join(', ')}${marker.packages.length > 5 ? '\n+' + (marker.packages.length - 5) + ' more' : ''}`,
+      content: '',
+      maintainer: marker.maintainer,
+      packages: marker.packages,
+      location: marker.location,
     });
   }
 
@@ -43,10 +53,23 @@ export function MapView({ markers }: MapViewProps) {
     setTooltip((t) => ({ ...t, visible: false }));
   }
 
+  function isHighlighted(marker: MarkerType): boolean {
+    if (!selectedDep) return false;
+    return marker.packages.includes(selectedDep);
+  }
+
+  function getMarkerRadius(marker: MarkerType): number {
+    const count = marker.packages.length;
+    if (count >= 20) return 10;
+    if (count >= 10) return 8;
+    if (count >= 5) return 6;
+    return 4;
+  }
+
   return (
     <div className="map-container">
       <ComposableMap
-        projection="geoNaturalEarth1"
+        projection={PROJECTION}
         style={{ width: '100%', height: '100%' }}
       >
         <ZoomableGroup zoom={1} minZoom={1} maxZoom={8}>
@@ -57,42 +80,72 @@ export function MapView({ markers }: MapViewProps) {
                   key={geo.rsmKey}
                   geography={geo}
                   style={{
-                    default: { fill: '#27272a', stroke: '#3f3f46', strokeWidth: 0.5 },
-                    hover: { fill: '#3f3f46', stroke: '#3f3f46', strokeWidth: 0.5 },
-                    pressed: { fill: '#3f3f46', stroke: '#3f3f46', strokeWidth: 0.5 },
+                    default: { fill: '#1a1a2e', stroke: '#2d2d4a', strokeWidth: 0.5 },
+                    hover: { fill: '#2d2d4a', stroke: '#2d2d4a', strokeWidth: 0.5 },
+                    pressed: { fill: '#2d2d4a', stroke: '#2d2d4a', strokeWidth: 0.5 },
                   }}
                 />
               ))
             }
           </Geographies>
 
-          {markers.map((marker) => (
-            <Marker
-              key={marker.id}
-              coordinates={marker.coordinates}
-              onMouseEnter={(e) => handleMarkerMouseEnter(e, marker)}
-              onMouseLeave={handleMarkerMouseLeave}
-            >
-              <circle
-                r={5}
-                fill="#10b981"
-                stroke="#064e3b"
-                strokeWidth={1}
-                style={{ cursor: 'pointer' }}
-              />
-            </Marker>
-          ))}
+          {markers.map((marker) => {
+            const highlighted = isHighlighted(marker);
+            const radius = getMarkerRadius(marker);
+            return (
+              <Marker
+                key={marker.id}
+                coordinates={marker.coordinates}
+                onMouseEnter={(e) => handleMarkerMouseEnter(e, marker)}
+                onMouseLeave={handleMarkerMouseLeave}
+              >
+                {/* Pulse ring */}
+                <circle
+                  r={radius + 4}
+                  fill="none"
+                  stroke={highlighted ? '#f59e0b' : '#10b981'}
+                  strokeWidth={1}
+                  opacity={0.3}
+                  className="marker-pulse"
+                />
+                {/* Main dot */}
+                <circle
+                  r={radius}
+                  fill={highlighted ? '#f59e0b' : '#10b981'}
+                  stroke={highlighted ? '#92400e' : '#064e3b'}
+                  strokeWidth={1.5}
+                  style={{ cursor: 'pointer' }}
+                  className="marker-dot"
+                />
+              </Marker>
+            );
+          })}
         </ZoomableGroup>
       </ComposableMap>
 
       {tooltip.visible && (
         <div
           className="map-tooltip"
-          style={{ left: tooltip.x + 10, top: tooltip.y + 10 }}
+          style={{ left: tooltip.x + 12, top: tooltip.y + 12 }}
         >
-          {tooltip.content.split('\n').map((line, i) => (
-            <div key={i}>{line}</div>
-          ))}
+          <div className="tooltip-header">
+            <span className="tooltip-maintainer">@{tooltip.maintainer}</span>
+          </div>
+          <div className="tooltip-location">📍 {tooltip.location}</div>
+          <div className="tooltip-packages">
+            {tooltip.packages.slice(0, 5).map((pkg, i) => (
+              <span key={i} className="tooltip-pkg-chip">{pkg}</span>
+            ))}
+            {tooltip.packages.length > 5 && (
+              <span className="tooltip-more">+{tooltip.packages.length - 5} more</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {markers.length === 0 && (
+        <div className="map-empty-hint">
+          Search for an npm package to see its maintainers on the map
         </div>
       )}
     </div>

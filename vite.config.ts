@@ -1,34 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const githubToken = process.env.VITE_GITHUB_TOKEN || '';
-
 export default defineConfig({
-  plugins: [
-    react(),
-    {
-      name: 'github-token-injector',
-      configureServer(server) {
-        server.middlewares.use('/github-api/', (req, res, next) => {
-          if (githubToken) {
-            req.headers['authorization'] = `Bearer ${githubToken}`;
-          }
-          next();
-        });
-      },
-    },
-  ],
+  plugins: [react()],
   server: {
     proxy: {
-      '/npm-api': {
-        target: 'https://registry.npmjs.org',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/npm-api/, ''),
-      },
-      '/github-api': {
+      // Proxy /api/github to the Vercel-style serverless function in dev
+      // In production, Vercel handles this via api/github/[...path].ts
+      '/api/github': {
         target: 'https://api.github.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/github-api/, ''),
+        rewrite: (path) => path.replace(/^\/api\/github/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'DependencyCartographer/1.0');
+            // In dev, read token from .env (loaded by Vite as process.env)
+            const token = process.env.GITHUB_TOKEN;
+            if (token) {
+              proxyReq.setHeader('Authorization', `Bearer ${token}`);
+            }
+          });
+        },
       },
     },
   },

@@ -1,10 +1,13 @@
-// npm registry
-export const NPM_REGISTRY_BASE = '/npm-api';
+/// <reference types="vite/client" />
 
-// GitHub API
-export const GITHUB_API_BASE = '/github-api';
+// npm registry (CORS-safe, direct browser access)
+export const NPM_REGISTRY_BASE = 'https://registry.npmjs.org';
 
-// Nominatim geocoding
+// GitHub API — proxied via Vercel serverless function in production,
+// via Vite dev proxy in development
+export const GITHUB_API_BASE = '/api/github';
+
+// Nominatim geocoding (CORS-safe, direct browser access)
 export const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org/search';
 
 // Rate limits

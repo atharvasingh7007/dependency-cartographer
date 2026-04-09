@@ -1,27 +1,33 @@
 .dep-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  height: 100%;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  animation: fadeIn 0.4s ease-out 0.2s both;
 }
 
 .dep-stats {
   display: flex;
-  gap: 12px;
-  padding: 0 4px;
+  gap: 16px;
+  padding: 0 2px;
 }
 
 .stat {
   font-size: 12px;
-  color: #71717a;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .stat.resolved {
-  color: #10b981;
+  color: var(--accent-primary);
 }
 
 .stat.unknown {
-  color: #71717a;
+  color: var(--text-dimmed);
 }
 
 .dep-scroll {
@@ -29,26 +35,30 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  min-height: 0;
 }
 
 .dep-item {
-  padding: 8px 12px;
-  background: #18181b;
-  border: 1px solid #27272a;
-  border-radius: 6px;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .dep-item:hover {
-  border-color: #10b981;
+  border-color: var(--accent-primary);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 1px var(--accent-glow);
+  transform: translateX(2px);
 }
 
 .dep-name {
   font-size: 13px;
-  color: #fafafa;
-  font-weight: 500;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .dep-meta {
@@ -60,36 +70,36 @@
 
 .status-badge {
   font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 9999px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
 .status-badge.pending {
-  background: #27272a;
-  color: #71717a;
+  background: rgba(113, 113, 122, 0.15);
+  color: var(--text-muted);
 }
 
 .status-badge.fetching {
-  background: #1c1a0a;
-  color: #ca8a04;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
 
 .status-badge.resolved {
-  background: #052e16;
-  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--accent-primary);
 }
 
 .status-badge.failed {
-  background: #2a0909;
-  color: #ef4444;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
 .dep-location {
   font-size: 11px;
-  color: #71717a;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

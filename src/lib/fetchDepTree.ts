@@ -9,7 +9,6 @@ interface NpmPackument {
     {
       version: string;
       dependencies?: Record<string, string>;
-      devDependencies?: Record<string, string>;
       repository?: { url: string };
       maintainers?: { name: string }[];
     }
@@ -47,8 +46,8 @@ export async function fetchDepTree(
       }
 
       const packument: NpmPackument = await res.json();
-      const latestVersion = packument['dist-tags'].latest;
-      const versionData = packument.versions[latestVersion];
+      const latestVersion = packument['dist-tags']?.latest;
+      const versionData = latestVersion ? packument.versions[latestVersion] : null;
 
       if (!versionData) {
         node.status = 'failed';
@@ -59,14 +58,14 @@ export async function fetchDepTree(
       node.version = versionData.version;
       node.repository = versionData.repository?.url;
       node.maintainers = versionData.maintainers?.map((m) => m.name) ?? [];
+      node.status = 'resolved';
 
       result.push(node);
 
+      // Only walk production dependencies (NOT devDependencies)
       const deps = versionData.dependencies ?? {};
-      const devDeps = versionData.devDependencies ?? {};
-      const allDeps = { ...deps, ...devDeps };
 
-      const subPromises = Object.keys(allDeps).map((depName) =>
+      const subPromises = Object.keys(deps).map((depName) =>
         fetchRecursive(depName, currentDepth - 1)
       );
       await Promise.all(subPromises);
