@@ -13,7 +13,6 @@ interface TooltipState {
   visible: boolean;
   x: number;
   y: number;
-  content: string;
   maintainer: string;
   packages: string[];
   location: string;
@@ -21,28 +20,16 @@ interface TooltipState {
 
 export function MapView({ markers, selectedDep }: MapViewProps) {
   const [tooltip, setTooltip] = useState<TooltipState>({
-    visible: false,
-    x: 0,
-    y: 0,
-    content: '',
-    maintainer: '',
-    packages: [],
-    location: '',
+    visible: false, x: 0, y: 0, maintainer: '', packages: [], location: '',
   });
 
-  function handleMarkerMouseEnter(
-    e: React.MouseEvent,
-    marker: MarkerType
-  ) {
-    const rect = (e.currentTarget as SVGElement)
-      .closest('svg')
-      ?.getBoundingClientRect();
+  function handleMarkerMouseEnter(e: React.MouseEvent, marker: MarkerType) {
+    const rect = (e.currentTarget as SVGElement).closest('svg')?.getBoundingClientRect();
     if (!rect) return;
     setTooltip({
       visible: true,
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
-      content: '',
       maintainer: marker.maintainer,
       packages: marker.packages,
       location: marker.location,
@@ -68,10 +55,7 @@ export function MapView({ markers, selectedDep }: MapViewProps) {
 
   return (
     <div className="map-container">
-      <ComposableMap
-        projection={PROJECTION}
-        style={{ width: '100%', height: '100%' }}
-      >
+      <ComposableMap projection={PROJECTION} style={{ width: '100%', height: '100%' }}>
         <ZoomableGroup zoom={1} minZoom={1} maxZoom={8}>
           <Geographies geography={GEO_URL}>
             {({ geographies }) =>
@@ -79,17 +63,18 @@ export function MapView({ markers, selectedDep }: MapViewProps) {
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
+                  className="map-geography"
                   style={{
-                    default: { fill: '#1a1a2e', stroke: '#2d2d4a', strokeWidth: 0.5 },
-                    hover: { fill: '#2d2d4a', stroke: '#2d2d4a', strokeWidth: 0.5 },
-                    pressed: { fill: '#2d2d4a', stroke: '#2d2d4a', strokeWidth: 0.5 },
+                    default: { fill: 'var(--map-land)', stroke: 'var(--map-border)', strokeWidth: 0.5 },
+                    hover: { fill: 'var(--map-land-hover)', stroke: 'var(--map-border)', strokeWidth: 0.5 },
+                    pressed: { fill: 'var(--map-land-hover)', stroke: 'var(--map-border)', strokeWidth: 0.5 },
                   }}
                 />
               ))
             }
           </Geographies>
 
-          {markers.map((marker) => {
+          {markers.map((marker, index) => {
             const highlighted = isHighlighted(marker);
             const radius = getMarkerRadius(marker);
             return (
@@ -108,13 +93,16 @@ export function MapView({ markers, selectedDep }: MapViewProps) {
                   opacity={0.3}
                   className="marker-pulse"
                 />
-                {/* Main dot */}
+                {/* Main dot with staggered entrance */}
                 <circle
                   r={radius}
                   fill={highlighted ? '#f59e0b' : '#10b981'}
                   stroke={highlighted ? '#92400e' : '#064e3b'}
                   strokeWidth={1.5}
-                  style={{ cursor: 'pointer' }}
+                  style={{
+                    cursor: 'pointer',
+                    animation: `markerPop 0.4s ease-out ${index * 0.05}s both`,
+                  }}
                   className="marker-dot"
                 />
               </Marker>
@@ -124,10 +112,7 @@ export function MapView({ markers, selectedDep }: MapViewProps) {
       </ComposableMap>
 
       {tooltip.visible && (
-        <div
-          className="map-tooltip"
-          style={{ left: tooltip.x + 12, top: tooltip.y + 12 }}
-        >
+        <div className="map-tooltip" style={{ left: tooltip.x + 12, top: tooltip.y + 12 }}>
           <div className="tooltip-header">
             <span className="tooltip-maintainer">@{tooltip.maintainer}</span>
           </div>
@@ -146,6 +131,12 @@ export function MapView({ markers, selectedDep }: MapViewProps) {
       {markers.length === 0 && (
         <div className="map-empty-hint">
           Search for an npm package to see its maintainers on the map
+        </div>
+      )}
+
+      {markers.length > 0 && (
+        <div className="map-marker-count">
+          {markers.length} location{markers.length !== 1 ? 's' : ''} mapped
         </div>
       )}
     </div>

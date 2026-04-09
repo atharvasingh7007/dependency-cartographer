@@ -4,7 +4,7 @@
   gap: 10px;
   flex: 1;
   min-height: 0;
-  animation: fadeIn 0.4s ease-out 0.2s both;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .dep-stats {
@@ -17,18 +17,9 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
-
-.stat.resolved {
-  color: var(--accent-primary);
-}
-
-.stat.unknown {
-  color: var(--text-dimmed);
-}
+.stat.resolved { color: var(--accent-primary); }
+.stat.unknown { color: var(--text-dimmed); }
 
 .dep-scroll {
   flex: 1;
@@ -51,7 +42,6 @@
 .dep-item:hover {
   border-color: var(--accent-primary);
   background: var(--bg-elevated);
-  box-shadow: 0 0 0 1px var(--accent-glow);
   transform: translateX(2px);
 }
 
@@ -59,6 +49,8 @@
   font-size: 13px;
   color: var(--text-primary);
   font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: -0.3px;
 }
 
 .dep-meta {
@@ -76,26 +68,10 @@
   font-weight: 600;
   letter-spacing: 0.5px;
 }
-
-.status-badge.pending {
-  background: rgba(113, 113, 122, 0.15);
-  color: var(--text-muted);
-}
-
-.status-badge.fetching {
-  background: var(--warning-bg);
-  color: var(--warning);
-}
-
-.status-badge.resolved {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--accent-primary);
-}
-
-.status-badge.failed {
-  background: var(--danger-bg);
-  color: var(--danger);
-}
+.status-badge.pending { background: rgba(113, 113, 122, 0.15); color: var(--text-muted); }
+.status-badge.fetching { background: var(--warning-bg); color: var(--warning); }
+.status-badge.resolved { background: rgba(16, 185, 129, 0.1); color: var(--accent-primary); }
+.status-badge.failed { background: var(--danger-bg); color: var(--danger); }
 
 .dep-location {
   font-size: 11px;

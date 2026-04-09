@@ -6,14 +6,13 @@
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  animation: fadeIn 0.4s ease-out 0.3s both;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .stats-title {
   font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.3px;
 }
 
 .stats-grid {
@@ -33,16 +32,14 @@
   border: 1px solid var(--border-subtle);
   transition: border-color 0.2s ease;
 }
-
-.stat-card:hover {
-  border-color: var(--accent-primary);
-}
+.stat-card:hover { border-color: var(--accent-primary); }
 
 .stat-value {
   font-size: 18px;
   font-weight: 700;
   color: var(--accent-primary);
   font-variant-numeric: tabular-nums;
+  animation: countUp 0.5s ease-out both;
 }
 
 .stat-label {
@@ -53,11 +50,7 @@
   font-weight: 600;
 }
 
-.top-locations {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.top-locations { display: flex; flex-direction: column; gap: 6px; }
 
 .top-locations-title {
   font-size: 12px;
@@ -66,11 +59,7 @@
   margin-bottom: 2px;
 }
 
-.location-bar-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.location-bar-row { display: flex; align-items: center; gap: 8px; }
 
 .location-name {
   width: 90px;

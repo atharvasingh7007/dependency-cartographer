@@ -1,24 +1,30 @@
 import { NPM_REGISTRY_BASE } from '../config/constants';
+import { getCachedDepTree, setCachedDepTree } from './db';
 import type { DepNode } from '../types';
+
+interface NpmLatest {
+  name: string;
+  version: string;
+  dependencies?: Record<string, string>;
+  repository?: { url: string };
+  maintainers?: { name: string }[];
+}
 
 interface NpmPackument {
   name: string;
   'dist-tags': { latest: string };
-  versions: Record<
-    string,
-    {
-      version: string;
-      dependencies?: Record<string, string>;
-      repository?: { url: string };
-      maintainers?: { name: string }[];
-    }
-  >;
+  versions: Record<string, NpmLatest>;
 }
 
 export async function fetchDepTree(
   packageName: string,
-  depth: number = 2
+  depth: number = 2,
+  signal?: AbortSignal
 ): Promise<DepNode[]> {
+  // Check IndexedDB cache first
+  const cached = await getCachedDepTree(packageName, depth);
+  if (cached) return cached as DepNode[];
+
   const visited = new Set<string>();
   const result: DepNode[] = [];
 
@@ -26,6 +32,7 @@ export async function fetchDepTree(
     name: string,
     currentDepth: number
   ): Promise<void> {
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
     if (currentDepth < 0 || visited.has(name)) return;
     visited.add(name);
 
@@ -38,43 +45,60 @@ export async function fetchDepTree(
     };
 
     try {
-      const res = await fetch(`${NPM_REGISTRY_BASE}/${encodeURIComponent(name)}`);
+      // Fetch abbreviated packument for smaller payload
+      const res = await fetch(
+        `${NPM_REGISTRY_BASE}/${encodeURIComponent(name)}`,
+        {
+          signal,
+          headers: { 'Accept': 'application/vnd.npm.install-v1+json' },
+        }
+      );
       if (!res.ok) {
         node.status = 'failed';
         result.push(node);
         return;
       }
 
-      const packument: NpmPackument = await res.json();
+      const packument = await res.json();
       const latestVersion = packument['dist-tags']?.latest;
-      const versionData = latestVersion ? packument.versions[latestVersion] : null;
 
+      if (!latestVersion) {
+        node.status = 'failed';
+        result.push(node);
+        return;
+      }
+
+      const versionData = packument.versions?.[latestVersion];
       if (!versionData) {
         node.status = 'failed';
         result.push(node);
         return;
       }
 
-      node.version = versionData.version;
+      node.version = versionData.version || latestVersion;
       node.repository = versionData.repository?.url;
-      node.maintainers = versionData.maintainers?.map((m) => m.name) ?? [];
+      node.maintainers = versionData.maintainers?.map((m: any) => m.name) ?? [];
       node.status = 'resolved';
 
       result.push(node);
 
-      // Only walk production dependencies (NOT devDependencies)
+      // Only walk production dependencies
       const deps = versionData.dependencies ?? {};
-
       const subPromises = Object.keys(deps).map((depName) =>
         fetchRecursive(depName, currentDepth - 1)
       );
       await Promise.all(subPromises);
-    } catch {
+    } catch (err: any) {
+      if (err.name === 'AbortError') throw err;
       node.status = 'failed';
       result.push(node);
     }
   }
 
   await fetchRecursive(packageName, depth);
+
+  // Cache the result
+  await setCachedDepTree(packageName, depth, result);
+
   return result;
 }
