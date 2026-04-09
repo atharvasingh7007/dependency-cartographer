@@ -1,14 +1,19 @@
-import type { IncomingMessage, ServerResponse } from 'http';
+// Vercel Serverless Function — GitHub API Proxy
+// This file runs on Vercel's Node.js runtime, NOT in the browser.
+// It keeps the GitHub token server-side (never exposed to the client).
 
-interface VercelRequest extends IncomingMessage {
+interface VercelRequest {
   query: Record<string, string | string[]>;
   body: any;
+  headers: Record<string, string | string[] | undefined>;
+  method?: string;
+  url?: string;
 }
 
-interface VercelResponse extends ServerResponse {
+interface VercelResponse {
   status: (code: number) => VercelResponse;
   json: (data: any) => void;
-  setHeader: (name: string, value: string) => VercelResponse;
+  setHeader: (name: string, value: string | number) => VercelResponse;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
